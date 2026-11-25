@@ -34,7 +34,7 @@ class JamCapture extends AudioWorkletProcessor {
       if (a > this.peak) this.peak = a
     }
     this.port.postMessage(packet, [packet])
-    if (++this.quanta >= 16) {
+    if (++this.quanta >= 8) { // ~21 ms, for the level meter
       this.port.postMessage({level: this.peak})
       this.peak = 0
       this.quanta = 0
@@ -59,6 +59,7 @@ class JamPlayer extends AudioWorkletProcessor {
     this.drops = 0
     this.lost = 0
     this.quanta = 0
+    this.peak = 0
     this.port.onmessage = e => {
       if (e.data instanceof ArrayBuffer) this.push(e.data)
       else if (e.data.target !== undefined) this.target = e.data.target
@@ -105,7 +106,10 @@ class JamPlayer extends AudioWorkletProcessor {
       }
       if (this.size >= n) {
         for (let i = 0; i < n; i++) {
-          out[i] = this.buf[this.read]
+          const v = this.buf[this.read]
+          out[i] = v
+          const a = v < 0 ? -v : v
+          if (a > this.peak) this.peak = a
           this.read = (this.read + 1) % this.cap
         }
         this.size -= n
@@ -115,7 +119,11 @@ class JamPlayer extends AudioWorkletProcessor {
       }
     }
 
-    if (++this.quanta >= 188) { // ~0.5 s
+    if (++this.quanta % 8 === 0) { // ~21 ms, for the level meter
+      this.port.postMessage({level: this.peak})
+      this.peak = 0
+    }
+    if (this.quanta >= 192) { // ~0.5 s
       this.port.postMessage({
         buffered: this.size,
         underruns: this.underruns,

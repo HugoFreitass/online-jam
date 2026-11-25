@@ -2,6 +2,10 @@
 
 export const SAMPLE_RATE = 48000
 
+// VB-Audio Virtual Cable, Voicemeeter, BlackHole (macOS), Loopback, etc.
+export const isVirtualCable = label =>
+  /cable|vb-audio|voicemeeter|blackhole|loopback|soundflower|virtual/i.test(label || '')
+
 export class AudioEngine {
   constructor() {
     this.ctx = null
@@ -31,9 +35,13 @@ export class AudioEngine {
     return (this.ctx.baseLatency || 0) + (this.ctx.outputLatency || 0)
   }
 
+  // Audio inputs, virtual cables (Guitar Rig, DAWs…) first.
   static async listInputs() {
     const devices = await navigator.mediaDevices.enumerateDevices()
-    return devices.filter(d => d.kind === 'audioinput')
+    return devices
+      .filter(d => d.kind === 'audioinput')
+      .map(d => ({deviceId: d.deviceId, label: d.label, virtual: isVirtualCable(d.label)}))
+      .sort((a, b) => b.virtual - a.virtual)
   }
 
   async setInput(deviceId, channel) {
@@ -67,6 +75,7 @@ export class AudioEngine {
     this.source.connect(this.monitor)
     // Must reach the destination to be pulled; it only outputs silence.
     this.capture.connect(this.ctx.destination)
+    return this.stream.getAudioTracks()[0].getSettings()
   }
 
   setChannel(channel) {

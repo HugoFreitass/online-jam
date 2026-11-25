@@ -32,6 +32,8 @@ python3 -m http.server 8000
 - Cabo de rede > Wi-Fi.
 - Use Chrome ou Edge (Web MIDI e AudioWorklet mais maduros).
 - Guitarra/violão: ligue na placa de som e escolha o canal (entrada 1 ou 2). Faça o monitoramento direto pela placa, não pelo navegador.
+- **Guitar Rig + cabo virtual**: o site detecta VB-Cable / Voicemeeter / BlackHole e mostra o botão **Usar Guitar Rig**, que já configura tudo. Deixe o cabo virtual e o Guitar Rig em **48000 Hz** (o site avisa se não estiver). O passo a passo está no painel "Como ligar o Guitar Rig".
+- As escolhas (entrada, canal, instrumento, buffer) ficam salvas no navegador.
 - Bateria eletrônica: dá pra mandar por MIDI (som TR-808) ou o áudio do módulo pela placa de som (som do seu kit).
 
 ## Limites reais
@@ -48,4 +50,6 @@ python3 -m http.server 8000
 - [ ] Metrônomo sincronizado
 - [ ] Mais instrumentos MIDI (kit acústico, órgão, baixo)
 - [x] Guitarra e violão no MIDI; campo "o que você toca" para quem manda áudio
+- [x] Guitar Rig + cabo virtual: detecção, configuração em um clique, aviso de 48 kHz
+- [x] Interface nova: canais com medidor de nível, LED de MIDI, atraso colorido
 - [ ] Opção Opus (WebCodecs) para conexões mais fracas

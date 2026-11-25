@@ -4,79 +4,116 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Online Jam</title>
-  <link rel="icon" href="data:,">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cg fill='%234ce0a0'%3E%3Crect x='1' y='6' width='2.5' height='8' rx='1'/%3E%3Crect x='5' y='2' width='2.5' height='12' rx='1'/%3E%3Crect x='9' y='4' width='2.5' height='10' rx='1'/%3E%3Crect x='13' y='8' width='2.5' height='6' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <h1>Online Jam</h1>
+  <section id="join" class="join">
+    <div class="hero">
+      <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      <h1 class="brand-name">online<span>·</span>jam</h1>
+      <p>Toque junto com a sua banda pelo navegador, direto de computador pra computador.</p>
+    </div>
+    <form id="join-form" class="card">
+      <label>Seu nome <input id="name" autocomplete="nickname" required></label>
+      <label>Sala <input id="room" placeholder="ex: banda-da-garagem" required></label>
+      <label>Senha <span class="opt">opcional</span> <input id="password" type="password" autocomplete="off"></label>
+      <button id="join-btn" class="primary">Entrar na sala</button>
+      <p id="join-error" class="error"></p>
+    </form>
+    <ul class="tips">
+      <li><b>🎧</b> Fones de ouvido</li>
+      <li><b>🔌</b> Cabo de rede &gt; Wi-Fi</li>
+      <li><b>🌐</b> Chrome ou Edge</li>
+    </ul>
+  </section>
 
-    <section id="join">
-      <form id="join-form">
-        <label>Seu nome <input id="name" autocomplete="nickname" required></label>
-        <label>Sala <input id="room" placeholder="ex: banda-da-garagem" required></label>
-        <label>Senha (opcional) <input id="password" type="password" autocomplete="off"></label>
-        <button id="join-btn">Entrar</button>
-        <p id="join-error" class="error"></p>
-      </form>
-      <p class="hint">Use fones de ouvido e, se puder, cabo de rede em vez de Wi-Fi. Funciona melhor no Chrome ou Edge.</p>
-    </section>
+  <section id="studio" hidden>
+    <header class="topbar">
+      <div class="brand"><div class="eq mini" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span class="brand-name">online<span>·</span>jam</span></div>
+      <div class="room-pill"><span class="dot" id="room-dot"></span><span id="room-name"></span><span class="count" id="peer-count"></span></div>
+      <button id="invite" type="button" class="ghost">Copiar convite</button>
+    </header>
 
-    <section id="studio" hidden>
-      <div class="bar">
-        <span>Sala <strong id="room-name"></strong></span>
-        <button id="invite" type="button">Copiar convite</button>
-      </div>
-      <p id="status"></p>
+    <div class="layout">
+      <aside class="me card">
+        <div class="strip-head">
+          <div class="avatar" id="me-avatar"><span id="me-initials"></span><span class="badge" id="me-badge"></span></div>
+          <div class="who"><strong id="me-name"></strong><span class="tag" id="me-tag">Você</span></div>
+          <span class="led" id="me-led" title="Atividade MIDI"></span>
+        </div>
+        <div class="meter"><div class="meter-mask" id="level"></div></div>
 
-      <div class="panels">
-        <fieldset>
-          <legend>Áudio (placa de som / microfone)</legend>
-          <label>O que você toca
-            <select id="audio-role">
-              <option value="">—</option>
-              <option>Guitarra</option>
-              <option>Violão</option>
-              <option>Baixo</option>
-              <option>Voz</option>
-              <option>Bateria</option>
-              <option>Teclado</option>
-              <option>Outro</option>
-            </select>
-          </label>
-          <label>Entrada <select id="audio-input"></select></label>
-          <label>Canal
-            <select id="audio-channel">
-              <option value="mix">Mix (1+2)</option>
-              <option value="left">Entrada 1 (esquerdo)</option>
-              <option value="right">Entrada 2 (direito)</option>
-            </select>
-          </label>
-          <div class="meter"><div id="level"></div></div>
-          <label class="check"><input type="checkbox" id="monitor"> Ouvir meu próprio áudio pelo navegador</label>
-        </fieldset>
+        <h3>Áudio</h3>
+        <label>O que você toca
+          <select id="audio-role">
+            <option value="">—</option>
+            <option>Guitarra</option>
+            <option>Violão</option>
+            <option>Baixo</option>
+            <option>Voz</option>
+            <option>Bateria</option>
+            <option>Teclado</option>
+            <option>Outro</option>
+          </select>
+        </label>
+        <div id="rig-box" class="rig" hidden>
+          <div><b>Cabo virtual detectado</b><span id="rig-device"></span></div>
+          <button id="rig-btn" type="button" class="primary small">Usar Guitar Rig</button>
+        </div>
+        <label>Entrada <select id="audio-input"></select></label>
+        <label>Canal
+          <select id="audio-channel">
+            <option value="mix">Mix (1+2)</option>
+            <option value="left">Entrada 1 (esquerdo)</option>
+            <option value="right">Entrada 2 (direito)</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="monitor"> Me ouvir pelo navegador</label>
+        <p id="input-info" class="hint"></p>
 
-        <fieldset>
-          <legend>MIDI</legend>
-          <label>Controlador <select id="midi-input"></select></label>
-          <label>Instrumento <select id="midi-instrument"></select></label>
-          <label class="check"><input type="checkbox" id="midi-local" checked> Tocar o som aqui também</label>
-        </fieldset>
+        <details class="guide">
+          <summary>Como ligar o Guitar Rig</summary>
+          <p><b>Jeito simples</b> (VB-Audio Virtual Cable, grátis):</p>
+          <ol>
+            <li>Instale o <a href="https://vb-audio.com/Cable/" target="_blank" rel="noopener">VB-Cable</a> e reinicie o PC.</li>
+            <li>No Windows, em <i>Configurações de som → Mais configurações</i>, deixe <b>CABLE Input</b> e <b>CABLE Output</b> em <b>48000 Hz</b> (Propriedades → Avançado).</li>
+            <li>No Guitar Rig, em <i>Preferences → Audio</i>: entrada = sua placa, saída = <b>CABLE Input</b>, 48000 Hz e o menor buffer que não estale (64–128).</li>
+            <li>Aqui, clique em <b>Usar Guitar Rig</b>. Isso escolhe o <b>CABLE Output</b> e liga "Me ouvir pelo navegador".</li>
+          </ol>
+          <p><b>Menos atraso pra se ouvir</b> (Voicemeeter Banana): no Guitar Rig use o driver <i>Voicemeeter Virtual ASIO</i>. No Voicemeeter, mande a saída para o fone (A1) e para o B1. Aqui, escolha <b>Voicemeeter Out B1</b> e deixe "Me ouvir" desligado.</p>
+        </details>
 
-        <fieldset>
-          <legend>Rede</legend>
-          <label>Buffer de recepção <span id="buffer-value">10 ms</span>
-            <input id="buffer" type="range" min="0" max="60" step="1" value="10">
-          </label>
-          <p class="hint">Menor = menos atraso. Se o som picotar, aumente.</p>
-          <p class="hint" id="local-latency"></p>
-        </fieldset>
-      </div>
+        <h3>MIDI</h3>
+        <label>Controlador <select id="midi-input"></select></label>
+        <label>Instrumento <select id="midi-instrument"></select></label>
+        <label class="check"><input type="checkbox" id="midi-local" checked> Tocar o som aqui também</label>
+        <p id="midi-info" class="hint"></p>
 
-      <h2>Músicos</h2>
-      <div id="peers"></div>
-    </section>
-  </main>
+        <h3>Rede</h3>
+        <label>Buffer de recepção <output id="buffer-value">10 ms</output>
+          <input id="buffer" type="range" min="0" max="60" step="1" value="10">
+        </label>
+        <p class="hint">Menor = menos atraso. Se picotar, aumente.</p>
+        <p class="hint" id="local-latency"></p>
+      </aside>
+
+      <main class="band">
+        <h2>Banda</h2>
+        <div id="peers" class="strips"></div>
+        <div id="empty" class="empty card">
+          <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+          <p>Ninguém aqui ainda.</p>
+          <button id="invite-empty" type="button" class="primary">Copiar link da sala</button>
+        </div>
+      </main>
+    </div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </section>
+
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
