@@ -14,7 +14,7 @@ export class AudioEngine {
     this.capture = null
     this.monitor = null
     this.players = new Map() // peerId -> {node, gain, stats}
-    this.targetMs = 10
+    this.marginMs = 2
     this.onPacket = () => {}
     this.onLevel = () => {}
   }
@@ -33,6 +33,14 @@ export class AudioEngine {
   get localLatency() {
     if (!this.ctx) return 0
     return (this.ctx.baseLatency || 0) + (this.ctx.outputLatency || 0)
+  }
+
+  // Input latency of this machine (seconds): the capture buffer the browser
+  // reports for the open input, plus one render quantum.
+  get inputLatency() {
+    if (!this.stream || !this.ctx) return 0
+    const settings = this.stream.getAudioTracks()[0]?.getSettings() || {}
+    return (settings.latency || 0) + (this.ctx.baseLatency || 0)
   }
 
   // Audio inputs, virtual cables (Guitar Rig, DAWs…) first.
@@ -103,7 +111,7 @@ export class AudioEngine {
     })
     const gain = this.ctx.createGain()
     node.connect(gain).connect(this.ctx.destination)
-    node.port.postMessage({target: Math.round(this.targetMs * SAMPLE_RATE / 1000)})
+    node.port.postMessage({margin: Math.round(this.marginMs * SAMPLE_RATE / 1000)})
     node.port.onmessage = e => onStats(e.data)
     const player = {node, gain}
     this.players.set(peerId, player)
@@ -119,10 +127,12 @@ export class AudioEngine {
     if (p) p.gain.gain.value = value
   }
 
-  setTargetMs(ms) {
-    this.targetMs = ms
-    const target = Math.round(ms * SAMPLE_RATE / 1000)
-    for (const {node} of this.players.values()) node.port.postMessage({target})
+  // Spare buffer each player keeps at its worst moment, on top of the jitter
+  // it measures by itself.
+  setMarginMs(ms) {
+    this.marginMs = ms
+    const margin = Math.round(ms * SAMPLE_RATE / 1000)
+    for (const {node} of this.players.values()) node.port.postMessage({margin})
   }
 
   removePeer(peerId) {

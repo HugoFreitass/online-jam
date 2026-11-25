@@ -94,10 +94,10 @@
         <p id="midi-info" class="hint"></p>
 
         <h3>Rede</h3>
-        <label>Buffer de recepção <output id="buffer-value">10 ms</output>
-          <input id="buffer" type="range" min="0" max="60" step="1" value="10">
+        <label>Margem de segurança <output id="buffer-value">2 ms</output>
+          <input id="buffer" type="range" min="0" max="20" step="1" value="2">
         </label>
-        <p class="hint">Menor = menos atraso. Se picotar, aumente.</p>
+        <p class="hint">O buffer se ajusta sozinho à rede de cada músico. Esta margem vai por cima: menor = menos atraso. Se picotar, aumente.</p>
         <p class="hint" id="local-latency"></p>
       </aside>
 

@@ -7,7 +7,8 @@ const APP_ID = 'github.com/HugoFreitass/online-jam'
 // Fixed ids so both sides open the same channel without renegotiating.
 const AUDIO_CHANNEL_ID = 500
 const MIDI_CHANNEL_ID = 501
-const MAX_BUFFERED = 8 * 1024 // drop audio instead of queueing behind congestion
+// Drop audio instead of queueing behind congestion: at most ~6 packets (16 ms).
+const MAX_BUFFERED = 6 * (4 + 128 * 2)
 const QUANTUM_MS = 128 / SAMPLE_RATE * 1000
 const LED_MS = 90
 
@@ -27,7 +28,7 @@ const store = {
   get(k) { try { return JSON.parse(localStorage.getItem('jam:' + k)) } catch { return null } },
   set(k, v) { try { localStorage.setItem('jam:' + k, JSON.stringify(v)) } catch {} }
 }
-const settings = {channel: 'mix', role: '', midiInstrument: 'piano', bufferMs: 10, monitor: false, inputLabel: '', ...store.get('settings')}
+const settings = {channel: 'mix', role: '', midiInstrument: 'piano', marginMs: 2, monitor: false, inputLabel: '', ...store.get('settings')}
 const saveSettings = patch => { Object.assign(settings, patch); store.set('settings', settings) }
 
 // ---------- level meters & MIDI LEDs (one rAF loop for everything) ----------
@@ -148,8 +149,8 @@ async function setupInputs() {
   $('#audio-role').value = settings.role
   $('#audio-channel').value = settings.channel
   $('#monitor').checked = settings.monitor
-  $('#buffer').value = settings.bufferMs
-  setBuffer(settings.bufferMs)
+  $('#buffer').value = settings.marginMs
+  setMargin(settings.marginMs)
 
   audio.onPacket = packet => {
     for (const p of peers.values()) {
@@ -214,6 +215,7 @@ async function openInput() {
   try {
     const s = await audio.setInput(sel.value, $('#audio-channel').value)
     audio.setMonitor($('#monitor').checked)
+    profile?.set(prev => ({...prev, inputMs: audio.inputLatency * 1000}))
     if (!s) return
     const parts = []
     if (s.sampleRate) parts.push(`${s.sampleRate} Hz`)
@@ -290,14 +292,14 @@ function loadSynth(id, infoEl) {
   s.ready.then(() => { infoEl.textContent = `${label} pronto.` }, () => { infoEl.textContent = `Falha ao carregar ${label}.` })
 }
 
-function setBuffer(ms) {
+function setMargin(ms) {
   $('#buffer-value').textContent = ms + ' ms'
-  audio.setTargetMs(ms)
+  audio.setMarginMs(ms)
 }
 $('#buffer').addEventListener('input', e => {
   const ms = Number(e.target.value)
-  saveSettings({bufferMs: ms})
-  setBuffer(ms)
+  saveSettings({marginMs: ms})
+  setMargin(ms)
 })
 
 async function copyInvite() {
@@ -442,11 +444,13 @@ function renderPeerStats(peerId) {
     stats.push(`buffer ${bufferMs.toFixed(1)} ms`)
     stats.push(`<span class="${p.stats.underruns ? 'warn' : ''}">falhas ${p.stats.underruns}</span>`)
     stats.push(`<span class="${p.stats.lost ? 'warn' : ''}">perdidos ${p.stats.lost}</span>`)
+    if (p.stats.late) stats.push(`<span class="warn">atrasados ${p.stats.late}</span>`)
   }
   if (p.rtt != null) {
-    // Network one-way + capture block + jitter buffer + this machine's output.
-    const bufferMs = p.stats ? p.stats.buffered / SAMPLE_RATE * 1000 : audio.targetMs
-    const total = p.rtt / 2 + QUANTUM_MS + bufferMs + audio.localLatency * 1000
+    // Their input + capture block + network one-way + jitter buffer + this machine's output.
+    const inputMs = profile?.get(p.userId)?.inputMs || 0
+    const bufferMs = p.stats ? p.stats.buffered / SAMPLE_RATE * 1000 : audio.marginMs + QUANTUM_MS
+    const total = inputMs + QUANTUM_MS + p.rtt / 2 + bufferMs + audio.localLatency * 1000
     lat.querySelector('.lat-num').textContent = total.toFixed(0)
     lat.className = 'lat ' + (total < 25 ? 'ok' : total < 40 ? 'mid' : 'bad')
   }
