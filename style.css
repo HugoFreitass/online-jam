@@ -1,0 +1,62 @@
+:root {
+  --bg: #15161a;
+  --panel: #1f2127;
+  --border: #33363f;
+  --text: #e8e8ec;
+  --muted: #9a9cab;
+  --accent: #4cc38a;
+  --warn: #e5534b;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 system-ui, sans-serif;
+}
+
+main { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+h1 { margin: 0 0 20px; font-size: 24px; }
+h2 { font-size: 17px; margin: 28px 0 12px; }
+
+label { display: block; margin-bottom: 12px; color: var(--muted); font-size: 13px; }
+label input:not([type=checkbox]):not([type=range]), label select {
+  display: block; width: 100%; margin-top: 4px; padding: 8px 10px;
+  background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; font: inherit;
+}
+label.check { display: flex; gap: 8px; align-items: center; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+
+button {
+  padding: 8px 16px; border: 0; border-radius: 6px; cursor: pointer;
+  background: var(--accent); color: #0b1a12; font: inherit; font-weight: 600;
+}
+button:disabled { opacity: .5; cursor: default; }
+
+#join-form { max-width: 360px; }
+.hint { color: var(--muted); font-size: 13px; }
+.error { color: var(--warn); }
+#status { color: var(--muted); min-height: 1.5em; }
+
+.bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+fieldset { margin: 0; padding: 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+legend { padding: 0 6px; font-weight: 600; }
+
+.meter { height: 8px; margin: -4px 0 12px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+#level { height: 100%; width: 0; background: var(--accent); transition: width 50ms linear; }
+#level.clip { background: var(--warn); }
+
+#peers { display: grid; gap: 10px; }
+.peer { padding: 12px 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+.peer-head { display: flex; gap: 10px; align-items: baseline; }
+.tag { color: var(--accent); font-size: 13px; }
+.peer-stats { color: var(--muted); font-size: 13px; margin: 4px 0 8px; font-variant-numeric: tabular-nums; }
+.peer-controls { display: flex; gap: 10px; align-items: center; }
+.peer-controls input { flex: 1; }
+.mute { background: var(--border); color: var(--text); font-weight: 400; }
+.empty { color: var(--muted); }

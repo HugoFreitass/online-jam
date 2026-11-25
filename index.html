@@ -4,9 +4,67 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Online Jam</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Online Jam</h1>
-  <p>Em construção.</p>
+  <main>
+    <h1>Online Jam</h1>
+
+    <section id="join">
+      <form id="join-form">
+        <label>Seu nome <input id="name" autocomplete="nickname" required></label>
+        <label>Sala <input id="room" placeholder="ex: banda-da-garagem" required></label>
+        <label>Senha (opcional) <input id="password" type="password" autocomplete="off"></label>
+        <button id="join-btn">Entrar</button>
+        <p id="join-error" class="error"></p>
+      </form>
+      <p class="hint">Use fones de ouvido e, se puder, cabo de rede em vez de Wi-Fi. Funciona melhor no Chrome ou Edge.</p>
+    </section>
+
+    <section id="studio" hidden>
+      <div class="bar">
+        <span>Sala <strong id="room-name"></strong></span>
+        <button id="invite" type="button">Copiar convite</button>
+      </div>
+      <p id="status"></p>
+
+      <div class="panels">
+        <fieldset>
+          <legend>Áudio (placa de som / microfone)</legend>
+          <label>Entrada <select id="audio-input"></select></label>
+          <label>Canal
+            <select id="audio-channel">
+              <option value="mix">Mix (1+2)</option>
+              <option value="left">Entrada 1 (esquerdo)</option>
+              <option value="right">Entrada 2 (direito)</option>
+            </select>
+          </label>
+          <div class="meter"><div id="level"></div></div>
+          <label class="check"><input type="checkbox" id="monitor"> Ouvir meu próprio áudio pelo navegador</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>MIDI</legend>
+          <label>Controlador <select id="midi-input"></select></label>
+          <label>Instrumento <select id="midi-instrument"></select></label>
+          <label class="check"><input type="checkbox" id="midi-local" checked> Tocar o som aqui também</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Rede</legend>
+          <label>Buffer de recepção <span id="buffer-value">10 ms</span>
+            <input id="buffer" type="range" min="0" max="60" step="1" value="10">
+          </label>
+          <p class="hint">Menor = menos atraso. Se o som picotar, aumente.</p>
+          <p class="hint" id="local-latency"></p>
+        </fieldset>
+      </div>
+
+      <h2>Músicos</h2>
+      <div id="peers"></div>
+    </section>
+  </main>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
