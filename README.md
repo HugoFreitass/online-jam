@@ -9,7 +9,7 @@ Cenário alvo: até 5 pessoas no mesmo estado (≤ ~30 km), tocando piano, bater
 - **Conexão P2P (malha)**: cada pessoa conecta direto com as outras via WebRTC. A descoberta usa a lib [Trystero](https://github.com/dmotz/trystero), que faz o "aperto de mão" por relays Nostr públicos. O GitHub Pages só serve os arquivos.
 - **Áudio sem codec**: PCM 16-bit, mono, 48 kHz, em pacotes de 128 amostras (2,7 ms), enviados num DataChannel **não confiável e fora de ordem**. Assim pulamos o jitter buffer do WebRTC tradicional (que sozinho costuma dar 40–80 ms). Custa ~1 Mbps por pessoa, em cada direção.
 - **Jitter buffer próprio** (AudioWorklet) com alvo ajustável na tela (padrão 10 ms).
-- **MIDI**: só as notas trafegam (4 bytes por evento). Cada navegador toca o som localmente com samples ([smplr](https://github.com/danigb/smplr)): piano de cauda, piano elétrico e bateria TR-808. O atraso do MIDI é praticamente só o da rede.
+- **MIDI**: só as notas trafegam (4 bytes por evento). Cada navegador toca o som localmente com samples ([smplr](https://github.com/danigb/smplr)): piano de cauda, piano elétrico, bateria TR-808, violão (nylon/aço) e guitarra (limpa/overdrive/distorcida). O atraso do MIDI é praticamente só o da rede.
 
 ## Arquivos
 
@@ -47,4 +47,5 @@ python3 -m http.server 8000
 - [ ] Buffer adaptativo e ocultação de perda (evitar estalos)
 - [ ] Metrônomo sincronizado
 - [ ] Mais instrumentos MIDI (kit acústico, órgão, baixo)
+- [x] Guitarra e violão no MIDI; campo "o que você toca" para quem manda áudio
 - [ ] Opção Opus (WebCodecs) para conexões mais fracas

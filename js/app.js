@@ -50,9 +50,9 @@ $('#join-form').addEventListener('submit', async e => {
 
 function enterRoom(name, roomName, password) {
   room = joinRoom({appId: APP_ID, identity: 'none', ...(password && {password})}, roomName)
-  profile = room.makeUserState('profile', {name, instrument: null})
+  profile = room.makeUserState('profile', {name, instrument: null, role: ''})
   profile.onChange(() => renderPeers())
-  profile.set({name, instrument: null}) // the initial value isn't published until set
+  profile.set({name, instrument: null, role: ''}) // the initial value isn't published until set
 
   room.onPeerJoin(({peerId, userId}) => connectPeer(peerId, userId))
   room.onPeerLeave(({peerId}) => disconnectPeer(peerId))
@@ -119,6 +119,7 @@ $('#audio-input').addEventListener('change', async e => {
   }
 })
 $('#audio-channel').addEventListener('change', e => audio.setChannel(e.target.value))
+$('#audio-role').addEventListener('change', e => profile?.set(prev => ({...prev, role: e.target.value})))
 $('#monitor').addEventListener('change', e => audio.setMonitor(e.target.checked))
 
 $('#midi-input').addEventListener('change', e => {
@@ -224,7 +225,7 @@ function renderPeers() {
     card.innerHTML = `
       <div class="peer-head">
         <strong>${esc(info.name || 'Conectando…')}</strong>
-        <span class="tag">${info.instrument ? esc(INSTRUMENTS.find(i => i.id === info.instrument)?.label || '') : ''}</span>
+        <span class="tag">${esc(peerTag(info))}</span>
       </div>
       <div class="peer-stats"></div>
       <div class="peer-controls">
@@ -244,6 +245,11 @@ function renderPeers() {
     if (info.instrument) midi.synth(info.instrument)
     renderPeer(peerId)
   }
+}
+
+function peerTag(info) {
+  const midiLabel = INSTRUMENTS.find(i => i.id === info.instrument)?.label
+  return [info.role, midiLabel && 'MIDI: ' + midiLabel].filter(Boolean).join(' · ')
 }
 
 function renderPeer(peerId) {

@@ -1,10 +1,16 @@
 // MIDI: read a local controller and play notes (local + remote) with sampled instruments.
-import {SplendidGrandPiano, ElectricPiano, DrumMachine} from 'https://cdn.jsdelivr.net/npm/smplr@1.2.0/+esm'
+import {SplendidGrandPiano, ElectricPiano, DrumMachine, Soundfont} from 'https://cdn.jsdelivr.net/npm/smplr@1.2.0/+esm'
 
+// The array index is sent over the wire, so only append new entries.
 export const INSTRUMENTS = [
-  {id: 'piano', label: 'Piano de cauda'},
-  {id: 'epiano', label: 'Piano elétrico'},
-  {id: 'drums', label: 'Bateria (TR-808)'}
+  {id: 'piano', label: 'Piano de cauda', create: ctx => SplendidGrandPiano(ctx)},
+  {id: 'epiano', label: 'Piano elétrico', create: ctx => ElectricPiano(ctx, {instrument: 'CP80'})},
+  {id: 'drums', label: 'Bateria (TR-808)', create: ctx => DrumMachine(ctx, {instrument: 'TR-808'})},
+  {id: 'nylon', label: 'Violão (nylon)', create: ctx => Soundfont(ctx, {instrument: 'acoustic_guitar_nylon'})},
+  {id: 'steel', label: 'Violão (aço)', create: ctx => Soundfont(ctx, {instrument: 'acoustic_guitar_steel'})},
+  {id: 'eguitar', label: 'Guitarra limpa', create: ctx => Soundfont(ctx, {instrument: 'electric_guitar_clean'})},
+  {id: 'overdrive', label: 'Guitarra overdrive', create: ctx => Soundfont(ctx, {instrument: 'overdriven_guitar'})},
+  {id: 'distortion', label: 'Guitarra distorcida', create: ctx => Soundfont(ctx, {instrument: 'distortion_guitar'})}
 ]
 
 // General MIDI percussion note -> keywords to look for in the drum machine's group names.
@@ -32,11 +38,8 @@ export class MidiEngine {
 
   synth(id) {
     if (this.synths[id]) return this.synths[id]
-    const ctx = this.ctx
-    const s =
-      id === 'epiano' ? ElectricPiano(ctx, {instrument: 'CP80'}) :
-      id === 'drums' ? DrumMachine(ctx, {instrument: 'TR-808'}) :
-      SplendidGrandPiano(ctx)
+    const def = INSTRUMENTS.find(i => i.id === id) || INSTRUMENTS[0]
+    const s = def.create(this.ctx)
     this.synths[id] = s
     if (id === 'drums') s.ready.then(() => { this.drumMap = buildDrumMap(s.getGroupNames()) })
     return s
